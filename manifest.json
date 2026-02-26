@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Indian Express – E-Paper</title>
+<link rel="icon" type="image/png" href="Logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
+</script>
+    
+<style>
+:root{
+  --bg-start:#f8fafc;
+  --bg-end:#e0e7ff;
+  --glass:rgba(255,255,255,.85);
+  --glass-hover:rgba(255,255,255,.95);
+  --border:rgba(255,255,255,.6);
+  --text:#0f172a;
+  --text-secondary:#475569;
+  --muted:#64748b;
+  --accent:#3b82f6;
+  --accent-hover:#2563eb;
+  --success:#10b981;
+  --warning:#f59e0b;
+  --shadow:rgba(0,0,0,.08);
+  --shadow-lg:rgba(0,0,0,.12);
+}
+
+body.dark{
+  --bg-start:#0a0e1a;
+  --bg-end:#1a1f35;
+  --glass:rgba(30,35,55,.85);
+  --glass-hover:rgba(40,45,65,.95);
+  --border:rgba(255,255,255,.1);
+  --text:#f1f5f9;
+  --text-secondary:#cbd5e1;
+  --muted:#94a3b8;
+  --accent:#60a5fa;
+  --accent-hover:#3b82f6;
+  --success:#34d399;
+  --warning:#fbbf24;
+  --shadow:rgba(0,0,0,.3);
+  --shadow-lg:rgba(0,0,0,.5);
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  min-height:100vh;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  background:linear-gradient(135deg,var(--bg-start),var(--bg-end));
+  color:var(--text);
+  display:flex;
+  justify-content:center;
+  padding:32px 20px 140px;
+  transition:background .4s ease,color .3s ease;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* Animated background particles */
+.particle{
+  position:fixed;
+  width:4px;
+  height:4px;
+  background:var(--accent);
+  border-radius:50%;
+  opacity:.2;
+  pointer-events:none;
+  animation:float-particle 20s infinite;
+}
+
+@keyframes float-particle{
+  0%,100%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(100px,-100px) scale(1.5)}
+  66%{transform:translate(-100px,100px) scale(.8)}
+}
+
+/* Glass morphism */
+.glass{
+  backdrop-filter:blur(32px) saturate(180%);
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:24px;
+  box-shadow:0 20px 60px var(--shadow),0 8px 24px var(--shadow-lg);
+  transition:all .3s ease;
+}
+
+.glass:hover{
+  background:var(--glass-hover);
+  box-shadow:0 24px 70px var(--shadow),0 12px 32px var(--shadow-lg);
+}
+
+.app>.glass:hover{
+  transform:translateY(-2px);
+}
+
+/* App container */
+.app{
+  width:100%;
+  max-width:440px;
+  animation:slideIn .7s cubic-bezier(.23,1,.32,1);
+}
+
+@keyframes slideIn{
+  from{
+    opacity:0;
+    transform:translateY(30px) scale(.96);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
+
+/* Header */
+header{
+  text-align:center;
+  margin-bottom:28px;
+  position:relative;
+}
+
+.logo{
+  width:56px;
+  height:56px;
+  margin:0 auto 16px;
+  background:linear-gradient(135deg,var(--accent),#8b5cf6);
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  box-shadow:0 8px 24px rgba(59,130,246,.3);
+  animation:float 3s ease-in-out infinite;
+}
+
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+}
+
+header h1{
+  font-size:28px;
+  font-weight:700;
+  letter-spacing:-.02em;
+  margin-bottom:8px;
+  background:linear-gradient(135deg,var(--text),var(--accent));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+header p{
+  font-size:15px;
+  color:var(--text-secondary);
+  font-weight:500;
+}
+
+/* Date display */
+.date-card{
+  padding:28px;
+  text-align:center;
+  margin-bottom:24px;
+  position:relative;
+  overflow:hidden;
+}
+
+.date-card::before{
+  content:'';
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:3px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  animation:shimmer 3s infinite;
+}
+
+@keyframes shimmer{
+  0%{transform:translateX(-100%)}
+  100%{transform:translateX(100%)}
+}
+
+.date-icon{
+  font-size:32px;
+  margin-bottom:12px;
+  display:inline-block;
+  animation:pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.1)}
+}
+
+.date-text{
+  font-size:20px;
+  font-weight:600;
+  color:var(--text);
+  letter-spacing:-.01em;
+}
+
+.date-day{
+  font-size:13px;
+  color:var(--muted);
+  margin-top:6px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+
+/* Buttons */
+.actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:20px;
+}
+
+button{
+  padding:16px 20px;
+  border-radius:16px;
+  border:none;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .2s cubic-bezier(.4,0,.2,1);
+  font-family:inherit;
+  position:relative;
+  overflow:hidden;
+}
+
+button::before{
+  content:'';
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:0;
+  height:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.3);
+  transform:translate(-50%,-50%);
+  transition:width .6s,height .6s;
+}
+
+button:active::before{
+  width:300px;
+  height:300px;
+}
+
+button:active{
+  transform:scale(.97);
+}
+
+.primary{
+  background:linear-gradient(135deg,var(--accent),#8b5cf6);
+  color:white;
+  box-shadow:0 8px 20px rgba(59,130,246,.3);
+}
+
+.primary:hover{
+  box-shadow:0 12px 28px rgba(59,130,246,.4);
+  transform:translateY(-2px);
+}
+
+.secondary{
+  background:transparent;
+  border:2px solid var(--accent);
+  color:var(--accent);
+}
+
+.secondary:hover{
+  background:var(--accent);
+  color:white;
+  transform:translateY(-2px);
+}
+
+/* Date controls */
+.controls{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:12px;
+  margin-bottom:22px;
+}
+
+.controls button{
+  background:var(--glass);
+  backdrop-filter:blur(16px);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-size:14px;
+  padding:14px;
+  box-shadow:0 4px 12px var(--shadow);
+}
+
+.controls button:hover{
+  background:var(--glass-hover);
+  transform:translateY(-1px);
+}
+
+.controls button:nth-child(2){
+  background:linear-gradient(135deg,var(--accent),#8b5cf6);
+  color:white;
+  border:none;
+  font-weight:600;
+}
+
+/* Share section */
+.share-section{
+  padding:20px;
+  margin-bottom:20px;
+}
+
+.share-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:14px;
+}
+
+.share-btn{
+  padding:12px;
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:14px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  font-size:13px;
+  color:var(--text);
+  transition:all .2s ease;
+}
+
+.share-btn:hover{
+  background:var(--glass-hover);
+  transform:translateY(-2px);
+  box-shadow:0 8px 16px var(--shadow);
+}
+
+.share-icon{
+  font-size:24px;
+}
+
+.share-label{
+  font-size:11px;
+  font-weight:500;
+}
+
+/* Recent history */
+.history-section{
+  padding:24px;
+  margin-bottom:20px;
+  display:none; /* Hidden - not needed */
+}
+
+.section-header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.section-icon{
+  font-size:20px;
+}
+
+.section-title{
+  font-weight:600;
+  font-size:16px;
+  flex:1;
+}
+
+.clear-btn{
+  background:none;
+  border:none;
+  color:var(--muted);
+  font-size:12px;
+  padding:4px 12px;
+  cursor:pointer;
+}
+
+.clear-btn:hover{
+  color:var(--accent);
+}
+
+.history-grid{
+  display:grid;
+  gap:10px;
+}
+
+.history-item{
+  padding:14px 16px;
+  background:rgba(59,130,246,.05);
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  cursor:pointer;
+  transition:all .2s ease;
+  border:1px solid transparent;
+}
+
+.history-item:hover{
+  background:rgba(59,130,246,.1);
+  border-color:var(--accent);
+  transform:translateX(4px);
+}
+
+.history-icon{
+  font-size:20px;
+}
+
+.history-date{
+  flex:1;
+  font-size:14px;
+  font-weight:500;
+  color:var(--text);
+}
+
+.history-time{
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* Date picker section */
+.picker-card{
+  padding:24px;
+  margin-bottom:16px;
+}
+
+.picker-header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.picker-icon{
+  font-size:24px;
+}
+
+.picker-title{
+  font-weight:600;
+  font-size:16px;
+  flex:1;
+}
+
+/* Date input */
+input[type="date"]{
+  width:100%;
+  padding:16px 18px;
+  border-radius:14px;
+  border:2px solid var(--border);
+  background:rgba(255,255,255,.95);
+  color:#0f172a;
+  font-size:15px;
+  font-family:inherit;
+  font-weight:500;
+  transition:all .2s ease;
+  cursor:pointer;
+}
+
+input[type="date"]:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(59,130,246,.1);
+}
+
+body.dark input[type="date"]{
+  background:rgba(30,35,55,.95);
+  color:#f1f5f9;
+}
+
+.open-selected{
+  width:100%;
+  margin-top:14px;
+}
+
+/* Status */
+.status{
+  text-align:center;
+  font-size:13px;
+  color:var(--muted);
+  padding:12px;
+  font-weight:500;
+  letter-spacing:.02em;
+}
+
+/* Toast notification */
+.toast{
+  position:fixed;
+  top:20px;
+  right:20px;
+  background:var(--glass);
+  backdrop-filter:blur(20px);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px 20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  box-shadow:0 8px 24px var(--shadow-lg);
+  transform:translateX(400px);
+  transition:transform .3s cubic-bezier(.68,-.55,.265,1.55);
+  z-index:1000;
+}
+
+.toast.show{
+  transform:translateX(0);
+}
+
+.toast-icon{
+  font-size:24px;
+}
+
+.toast-message{
+  font-size:14px;
+  font-weight:500;
+  color:var(--text);
+}
+
+/* Loading overlay */
+.loading-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(8px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+
+.loading-overlay.active{
+  display:flex;
+}
+
+.spinner{
+  width:60px;
+  height:60px;
+  border:4px solid var(--border);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+/* Bottom nav */
+nav{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  width:calc(100% - 40px);
+  max-width:440px;
+  display:flex;
+  justify-content:space-around;
+  padding:18px 8px;
+  z-index:100;
+  pointer-events:auto;
+}
+
+nav button{
+  background:none;
+  border:none;
+  font-size:14px;
+  color:var(--text-secondary);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  padding:8px 16px;
+  font-weight:500;
+  border-radius:12px;
+  pointer-events:auto;
+  transition:all .2s ease;
+}
+
+nav button:hover{
+  background:rgba(59,130,246,.1);
+  color:var(--accent);
+}
+
+nav button:active{
+  transform:scale(.95);
+}
+
+.nav-icon{
+  font-size:22px;
+  transition:transform .2s ease;
+}
+
+nav button:hover .nav-icon{
+  transform:scale(1.15);
+}
+
+.nav-label{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+
+.badge{
+  position:absolute;
+  top:4px;
+  right:12px;
+  background:var(--accent);
+  color:white;
+  font-size:10px;
+  padding:2px 6px;
+  border-radius:10px;
+  font-weight:700;
+}
+
+/* Responsive */
+@media (max-width:480px){
+  body{
+    padding:24px 16px 140px;
+  }
+  
+  header h1{
+    font-size:24px;
+  }
+  
+  .date-text{
+    font-size:18px;
+  }
+  
+  .actions{
+    gap:12px;
+  }
+  
+  button{
+    padding:14px 16px;
+    font-size:14px;
+  }
+  
+  .toast{
+    right:10px;
+    left:10px;
+    transform:translateY(-100px);
+  }
+  
+  .toast.show{
+    transform:translateY(0);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Background particles -->
+<div class="particle" style="top:10%;left:20%;animation-delay:0s"></div>
+<div class="particle" style="top:70%;left:80%;animation-delay:2s"></div>
+<div class="particle" style="top:40%;left:10%;animation-delay:4s"></div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast">
+  <span class="toast-icon">✨</span>
+  <span class="toast-message" id="toastMessage">Welcome!</span>
+</div>
+
+<div class="app" id="app">
+  <header>
+    <div class="logo">📰</div>
+    <h1>New Indian Express</h1>
+    <p>Digital E-Paper Experience</p>
+  </header>
+
+  <div class="glass date-card">
+    <div class="date-icon">📅</div>
+    <div class="date-text" id="dateText"></div>
+    <div class="date-day" id="dateDay"></div>
+  </div>
+
+  <div class="actions">
+    <button class="primary" onclick="openEdition(false)">
+      <span>📖 Open Here</span>
+    </button>
+    <button class="secondary" onclick="openEdition(true)">
+      <span>🔗 New Tab</span>
+    </button>
+  </div>
+
+  <div class="controls">
+    <button onclick="shiftDate(-1)">◀ Previous</button>
+    <button onclick="goToday()">Today</button>
+    <button onclick="shiftDate(1)">Next ▶</button>
+  </div>
+
+  <!-- Share section -->
+  <div class="glass share-section">
+    <div class="section-header">
+      <span class="section-icon">📤</span>
+      <div class="section-title">Share Link</div>
+    </div>
+    <div class="share-grid">
+      <button class="share-btn" onclick="shareWhatsApp()">
+        <span class="share-icon">💬</span>
+        <span class="share-label">WhatsApp</span>
+      </button>
+      <button class="share-btn" onclick="copyLink()">
+        <span class="share-icon">📋</span>
+        <span class="share-label">Copy Link</span>
+      </button>
+      <button class="share-btn" onclick="shareGeneric()">
+        <span class="share-icon">🔗</span>
+        <span class="share-label">Share</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Recent history -->
+  <div class="glass history-section" id="historySection">
+    <div class="section-header">
+      <span class="section-icon">🕐</span>
+      <div class="section-title">Recent History</div>
+      <button class="clear-btn" onclick="clearHistory()">Clear</button>
+    </div>
+    <div class="history-grid" id="historyList"></div>
+  </div>
+
+  <div class="glass picker-card" id="pickerCard">
+    <div class="picker-header">
+      <span class="picker-icon">🗓️</span>
+      <div class="picker-title">Choose Custom Date</div>
+    </div>
+    <input type="date" id="picker">
+    <button class="primary open-selected" onclick="openPicked()">
+      Open Selected Edition
+    </button>
+  </div>
+
+  <div class="status" id="status">✨ Ready to read</div>
+</div>
+
+<nav class="glass">
+  <button onclick="goToday()">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">Home</span>
+  </button>
+  <button onclick="scrollToPicker()" style="position:relative">
+    <span class="nav-icon">📅</span>
+    <span class="nav-label">Date</span>
+  </button>
+  <button onclick="toggleTheme()">
+    <span class="nav-icon">🌗</span>
+    <span class="nav-label">Theme</span>
+  </button>
+</nav>
+
+<script>
+let current = new Date();
+const dateText = document.getElementById("dateText");
+const dateDay = document.getElementById("dateDay");
+const status = document.getElementById("status");
+const picker = document.getElementById("picker");
+const toast = document.getElementById("toast");
+const toastMessage = document.getElementById("toastMessage");
+const loadingOverlay = document.getElementById("loadingOverlay");
+
+const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+const THEME_KEY = 'nie-theme';
+
+// --- Utility functions ---
+function showLoading() {
+  loadingOverlay.classList.add('active');
+}
+function hideLoading() {
+  loadingOverlay.classList.remove('active');
+}
+function formatLocalDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+function showToast(message) {
+  toastMessage.textContent = message;
+  toast.classList.add('active');
+  setTimeout(() => toast.classList.remove('active'), 2000);
+}
+
+// --- Render date ---
+function render() {
+  const day = days[current.getDay()];
+  const month = months[current.getMonth()];
+  const date = current.getDate();
+  const year = current.getFullYear();
+
+  dateText.textContent = `${month} ${date}, ${year}`;
+  dateDay.textContent = day;
+  picker.value = formatLocalDate(current);
+}
+
+// --- URL builder ---
+function pageURL() {
+  if (!picker.value) return null;
+  const [year, month, day] = picker.value.split('-');
+  return `https://pages.newindianexpress.com/${day}-${month}-${year}/`;
+}
+
+// --- Open edition ---
+function openEdition(newTab) {
+  const url = pageURL();
+  if (!url) {
+    showToast('⚠️ Please select a date');
+    return;
+  }
+  showLoading();
+  status.textContent = "🚀 Opening edition…";
+
+  setTimeout(() => {
+    hideLoading();
+    try {
+      newTab ? window.open(url, "_blank") : location.href = url;
+    } catch {
+      showToast('❌ Unable to open edition');
+    }
+  }, 500);
+}
+
+// --- Date navigation ---
+function shiftDate(n) {
+  const newDate = new Date(current);
+  newDate.setDate(newDate.getDate() + n);
+  const maxDate = new Date(picker.max);
+  if (newDate > maxDate) {
+    showToast('⚠️ Cannot go beyond today');
+    return;
+  }
+  current = newDate;
+  render();
+}
+function goToday() {
+  current = new Date();
+  render();
+  showToast('🏠 Back to today');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function openPicked() {
+  if (!picker.value) {
+    showToast('⚠️ Please select a date');
+    return;
+  }
+  openEdition(false);
+}
+
+// --- Quick access ---
+function scrollToPicker() {
+  document.getElementById("pickerCard").scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+  showToast('📅 Select your date');
+}
+
+// --- Share functions ---
+function shareWhatsApp() {
+  const url = pageURL();
+  if (!url) return;
+  const text = `Check out New Indian Express E-Paper: ${dateText.textContent}`;
+  const whatsappURL = `https://wa.me/?text=${encodeURIComponent(text + '\n' + url)}`;
+  window.open(whatsappURL, '_blank');
+  showToast('📱 Opening WhatsApp');
+}
+async function copyLink() {
+  const url = pageURL();
+  if (!url) return;
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast('✅ Link copied!');
+  } catch {
+    showToast('❌ Copy failed');
+  }
+}
+function shareGeneric() {
+  const url = pageURL();
+  if (!url) return;
+  const title = `New Indian Express - ${dateText.textContent}`;
+  if (navigator.share) {
+    navigator.share({
+      title: title,
+      text: `Read the e-paper edition`,
+      url: url
+    }).then(() => {
+      showToast('📤 Shared successfully');
+    }).catch(() => {});
+  } else {
+    copyLink();
+  }
+}
+
+// --- Swipe gestures ---
+let sx = 0, touchStartTime = 0;
+const appEl = document.getElementById("app");
+appEl.addEventListener("touchstart", e => {
+  sx = e.touches[0].clientX;
+  touchStartTime = Date.now();
+});
+appEl.addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - sx;
+  const dt = Date.now() - touchStartTime;
+  if (dt < 300 && Math.abs(dx) > 100) {
+    dx > 0 ? shiftDate(-1) : shiftDate(1);
+  }
+});
+
+// --- Theme ---
+if (localStorage.getItem(THEME_KEY) === "dark") {
+  document.body.classList.add("dark");
+}
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+  const isDark = document.body.classList.contains("dark");
+  localStorage.setItem(THEME_KEY, isDark ? "dark" : "light");
+  showToast(isDark ? '🌙 Dark mode' : '☀️ Light mode');
+}
+
+// --- Keyboard shortcuts ---
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') shiftDate(-1);
+  if (e.key === 'ArrowRight') shiftDate(1);
+  if (e.key === 'Enter' && document.activeElement === picker) {
+    e.preventDefault();
+    openPicked();
+  }
+  if (e.key.toLowerCase() === 't') goToday();
+});
+
+// --- Initialize ---
+picker.max = new Date().toISOString().split("T")[0];
+render();
+setTimeout(() => showToast('👋 Welcome back!'), 500);
+</script>
+
+
+</body>
+</html>
